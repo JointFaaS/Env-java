@@ -97,7 +97,6 @@ public class SocketControl implements Runnable {
   @Override
   public void run() {
     while (!Thread.interrupted()) {
-      System.out.println("Waiting for register");
       try {
         Request request = parseRequest(socket.getInputStream());
         InputStream input = new ByteArrayInputStream(request.getData());
@@ -108,7 +107,7 @@ public class SocketControl implements Runnable {
         System.out.println(output.toString());
 
         long resize = (long) res.length;
-        byte[] transfer = new byte[16 + res.length];
+        byte[] transfer = new byte[8 + res.length];
         System.arraycopy(longToBytes(resize), 0, transfer, 0, 8);
         System.arraycopy(res, 0, transfer, 8, res.length);
 

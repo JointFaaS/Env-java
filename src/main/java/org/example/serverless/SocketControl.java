@@ -21,7 +21,7 @@ public class SocketControl implements Runnable {
   final private String ENTRY_POINT = "jointfaas.Index";
 
   public SocketControl(String path, String funcName, String envID) throws IOException {
-    JarControl jarControl = new JarControl(JAR_PATH, ENTRY_POINT);
+    jarControl = new JarControl(JAR_PATH, ENTRY_POINT);
 
     final File socketFile = new File(path);
     AFUNIXSocketAddress address = new AFUNIXSocketAddress(socketFile);

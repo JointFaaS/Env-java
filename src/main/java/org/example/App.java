@@ -1,6 +1,5 @@
 package org.example;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,8 +19,6 @@ public class App
         Map<String, String> map = System.getenv();
         SocketControl socketControl = new SocketControl("/var/run/worker.sock", map.get("funcName"), map.get("envID"));
         socketControl.run();
-
-
     }
 
     public static void jarControlTest()

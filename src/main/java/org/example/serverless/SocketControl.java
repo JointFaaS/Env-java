@@ -74,19 +74,21 @@ public class SocketControl implements Runnable {
   private Request parseRequest(InputStream stream) throws IOException {
     byte[] b = new byte[16];
     if(stream.read(b) != 16) {
-      throw new IOException("read error");
+      throw new IOException("read head error");
     }
     ByteBuffer byteBuffer = ByteBuffer.wrap(b);
     Long callID = byteBuffer.getLong();
-    long size = byteBuffer.getLong();
+    Long size = byteBuffer.getLong();
     // let user handle with size and data
     Request request = new Request();
     request.setCallID(callID);
     if (size == 0L) {
       request.setData(new byte[0]);
     } else {
-      byte[] d = new byte[(int)size];
-      byteBuffer.get(d);
+      byte[] d = new byte[size.intValue()];
+      if (stream.read(d) != size.intValue()) {
+        throw new IOException("read data error");
+      }
       request.setData(d);
     }
     return request;

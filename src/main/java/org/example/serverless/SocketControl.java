@@ -27,8 +27,9 @@ public class SocketControl implements Runnable {
     AFUNIXSocketAddress address = new AFUNIXSocketAddress(socketFile);
     // register
     JSONObject reg = new JSONObject();
-    reg.append("funcName", funcName);
-    reg.append("envID", envID);
+    reg.put("funcName", funcName);
+    reg.put("envID", envID);
+    System.out.println(reg.toString());
     socket = AFUNIXSocket.newInstance();
     socket.connect(address);
     register(reg.toString());

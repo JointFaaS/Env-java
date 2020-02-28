@@ -1,5 +1,6 @@
 package org.example.serverless;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,32 +18,60 @@ import org.newsclub.net.unix.AFUNIXSocketAddress;
 public class SocketControl implements Runnable {
   private AFUNIXSocket socket;
   private JarControl jarControl;
-  final private String JAR_PATH = "/tmp/code/source";
-  final private String ENTRY_POINT = "jointfaas.Index";
+  private AFUNIXSocketAddress endpoint;
+  static final private String JAR_PATH = "/tmp/code/source";
+  static final private String ENTRY_POINT = "jointfaas.Index";
+  static final private int RETRY_TIME = 10;
+  static final private int HEADER_SIZE = 16;
 
-  public SocketControl(String path, String funcName, String envID) throws IOException {
+  public SocketControl(String path, String funcName, String envID, Boolean useThreadPool) {
     jarControl = new JarControl(JAR_PATH, ENTRY_POINT);
 
     final File socketFile = new File(path);
-    AFUNIXSocketAddress address = new AFUNIXSocketAddress(socketFile);
-    // register
-    JSONObject reg = new JSONObject();
-    reg.put("funcName", funcName);
-    reg.put("envID", envID);
-    System.out.println(reg.toString());
-    socket = AFUNIXSocket.newInstance();
-    socket.connect(address);
-    register(reg.toString());
-
+    try {
+      endpoint = new AFUNIXSocketAddress(socketFile);
+      // register
+      JSONObject reg = new JSONObject();
+      reg.put("funcName", funcName);
+      reg.put("envID", envID);
+      System.out.println(reg.toString());
+      socket = AFUNIXSocket.newInstance();
+      socket.connect(endpoint);
+      register(reg.toString());
+    } catch (IOException e) {
+      retry();
+    } finally {
+      if(socket == null || !socket.isConnected()) {
+        System.out.println("can not connect to socket");
+        System.exit(1);
+      }
+    }
   }
 
-  public byte[] longToBytes(long x) {
+  void retry() {
+    int times = 0;
+    while (times < RETRY_TIME) {
+      try {
+        socket.connect(endpoint);
+        if (socket.isConnected()) {
+          return;
+        }
+      } catch (IOException e) {
+        ++times;
+        System.out.printf("%d time to retry\n", times);
+      }
+    }
+  }
+
+
+
+  private byte[] longToBytes(long x) {
     ByteBuffer buffer = ByteBuffer.allocate(8);
     buffer.putLong(x);
     return buffer.array();
   }
 
-  public long bytesToLong(byte[] bytes) {
+  private long bytesToLong(byte[] bytes) {
     ByteBuffer buffer = ByteBuffer.allocate(8);
     buffer.put(bytes);
     buffer.flip(); // need flip
@@ -50,30 +79,25 @@ public class SocketControl implements Runnable {
   }
 
   private void register(String data) throws IOException {
-    OutputStream outputStream = socket.getOutputStream();
-    byte[] cb = longToBytes(0);
-
-    byte[] db = data.getBytes(StandardCharsets.UTF_8);
-    byte[] dbsize = longToBytes((long) db.length);
-    outputStream.write(cb);
-    outputStream.write(dbsize);
-    outputStream.write(db);
-    outputStream.flush();
+    sendRequest(0L, data.getBytes());
   }
 
-  private void sendRequest(Socket sock, Long callID, byte[] data) throws IOException {
-    OutputStream outputStream = sock.getOutputStream();
+  private void sendRequest(Long callID, byte[] data) throws IOException {
+    // data does not have size info
+    OutputStream outputStream = socket.getOutputStream();
     byte[] cb = longToBytes(callID);
-    byte[] combine = new byte[cb.length + data.length];
+    byte[] sizeb = longToBytes(data.length);
+    byte[] combine = new byte[cb.length + sizeb.length + data.length];
     System.arraycopy(cb, 0, combine, 0, cb.length);
-    System.arraycopy(data, 0, combine, cb.length, data.length);
+    System.arraycopy(sizeb, 0, combine, cb.length, sizeb.length);
+    System.arraycopy(data, 0, combine, cb.length + sizeb.length, data.length);
     outputStream.write(combine);
     outputStream.flush();
   }
 
   private Request parseRequest(InputStream stream) throws IOException {
-    byte[] b = new byte[16];
-    if(stream.read(b) != 16) {
+    byte[] b = new byte[HEADER_SIZE];
+    if(stream.read(b) != HEADER_SIZE) {
       throw new IOException("read head error");
     }
     ByteBuffer byteBuffer = ByteBuffer.wrap(b);
@@ -105,19 +129,18 @@ public class SocketControl implements Runnable {
         jarControl.invoke(input, output);
         byte[] res = output.toByteArray();
         System.out.println(output.toString());
-
-        long resize = (long) res.length;
-        byte[] transfer = new byte[8 + res.length];
-        System.arraycopy(longToBytes(resize), 0, transfer, 0, 8);
-        System.arraycopy(res, 0, transfer, 8, res.length);
-
-        sendRequest(socket, request.getCallID(), transfer);
+        sendRequest(request.getCallID(), res);
       }
       catch (IOException e) {
-        System.out.println(e.getMessage());
+        retry();
+        if(socket == null || !socket.isConnected()) {
+          System.out.println("can not connect to socket");
+          System.exit(1);
+        }
       }
       catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-        e.printStackTrace();
+        System.out.println(e.getMessage());
+        System.exit(1);
       }
     }
   }

@@ -38,14 +38,12 @@ public class AppTest
 
     @Test
     public void WorkerTest() throws InterruptedException {
-        ByteArrayOutputStream res1 = new ByteArrayOutputStream();
-        ByteArrayOutputStream res2 = new ByteArrayOutputStream();
+        ByteArrayOutputStream res = new ByteArrayOutputStream();
         ExecutorService threadPool = new ThreadPoolExecutor(2, 3, 200, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(100));
-        threadPool.submit(new Worker(new JarControl("D:/index.jar", "jointfaas.Index"),1L, new ByteArrayInputStream(new byte[0]), res1));
-        threadPool.submit(new Worker(new JarControl("D:/index.jar", "jointfaas.Index"),1L, new ByteArrayInputStream(new byte[0]), res2));
+        threadPool.submit(new Worker(new JarControl("D:/index.jar", "jointfaas.Index"),1L, new ByteArrayInputStream(new byte[0]), res));
+        threadPool.submit(new Worker(new JarControl("D:/index.jar", "jointfaas.Index"),1L, new ByteArrayInputStream(new byte[0]), res));
         threadPool.shutdown();
         while (!threadPool.awaitTermination(2000, TimeUnit.MILLISECONDS));
-        System.out.println(res1.toString());
-        System.out.println(res2.toString());
+        System.out.println(res.toString());
     }
 }

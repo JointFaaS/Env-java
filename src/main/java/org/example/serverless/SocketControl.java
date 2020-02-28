@@ -11,6 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
@@ -19,28 +23,37 @@ public class SocketControl implements Runnable {
   private AFUNIXSocket socket;
   private JarControl jarControl;
   private AFUNIXSocketAddress endpoint;
+  private final OutputStream output;
+  private final InputStream input;
   static final private String JAR_PATH = "/tmp/code/source";
   static final private String ENTRY_POINT = "jointfaas.Index";
   static final private int RETRY_TIME = 10;
   static final private int HEADER_SIZE = 16;
-
-  public SocketControl(String path, String funcName, String envID, Boolean useThreadPool) {
+  private Boolean useThreadPool;
+  public SocketControl(String path, String funcName, String envID, Boolean useThreadPool)
+      throws IOException {
     jarControl = new JarControl(JAR_PATH, ENTRY_POINT);
-
+    this.useThreadPool = useThreadPool;
     final File socketFile = new File(path);
     try {
       endpoint = new AFUNIXSocketAddress(socketFile);
       // register
+      socket = AFUNIXSocket.newInstance();
+      socket.connect(endpoint);
+    } catch (IOException e) {
+      retry();
+    } finally {
+      if (socket == null) {
+        System.out.println("socket error");
+        System.exit(1);
+      }
+      output = socket.getOutputStream();
+      input = socket.getInputStream();
       JSONObject reg = new JSONObject();
       reg.put("funcName", funcName);
       reg.put("envID", envID);
       System.out.println(reg.toString());
-      socket = AFUNIXSocket.newInstance();
-      socket.connect(endpoint);
       register(reg.toString());
-    } catch (IOException e) {
-      retry();
-    } finally {
       if(socket == null || !socket.isConnected()) {
         System.out.println("can not connect to socket");
         System.exit(1);
@@ -84,15 +97,16 @@ public class SocketControl implements Runnable {
 
   private void sendRequest(Long callID, byte[] data) throws IOException {
     // data does not have size info
-    OutputStream outputStream = socket.getOutputStream();
     byte[] cb = longToBytes(callID);
     byte[] sizeb = longToBytes(data.length);
     byte[] combine = new byte[cb.length + sizeb.length + data.length];
     System.arraycopy(cb, 0, combine, 0, cb.length);
     System.arraycopy(sizeb, 0, combine, cb.length, sizeb.length);
     System.arraycopy(data, 0, combine, cb.length + sizeb.length, data.length);
-    outputStream.write(combine);
-    outputStream.flush();
+    synchronized (output) {
+      output.write(combine);
+      output.flush();
+    }
   }
 
   private Request parseRequest(InputStream stream) throws IOException {
@@ -120,16 +134,25 @@ public class SocketControl implements Runnable {
 
   @Override
   public void run() {
+    ExecutorService threadPool = null;
+    if (useThreadPool) {
+     threadPool = new ThreadPoolExecutor(2, 3, 200, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(100));
+    }
     while (!Thread.interrupted()) {
       try {
-        Request request = parseRequest(socket.getInputStream());
-        InputStream input = new ByteArrayInputStream(request.getData());
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Request request = parseRequest(input);
+        ByteArrayInputStream input = new ByteArrayInputStream(request.getData());
         // call the function
-        jarControl.invoke(input, output);
-        byte[] res = output.toByteArray();
-        System.out.println(output.toString());
-        sendRequest(request.getCallID(), res);
+        if (useThreadPool) {
+          assert threadPool != null;
+          threadPool.submit(new Worker(jarControl, request.getCallID(), input, output));
+        } else {
+          ByteArrayOutputStream result = new ByteArrayOutputStream();
+          jarControl.invoke(input, result);
+          byte[] res = result.toByteArray();
+          System.out.println(result.toString());
+          sendRequest(request.getCallID(), res);
+        }
       }
       catch (IOException e) {
         retry();

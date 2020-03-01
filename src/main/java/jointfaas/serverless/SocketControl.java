@@ -36,10 +36,6 @@ public class SocketControl implements Runnable {
     } catch (IOException e) {
       retry();
     } finally {
-      if (socket == null) {
-        System.out.println("socket error");
-        System.exit(1);
-      }
       output = socket.getOutputStream();
       input = socket.getInputStream();
 
@@ -48,10 +44,6 @@ public class SocketControl implements Runnable {
       reg.put("envID", envID);
       System.out.println(reg.toString());
       register(reg.toString());
-      if(socket == null || !socket.isConnected()) {
-        System.out.println("can not connect to socket");
-        System.exit(1);
-      }
     }
   }
 

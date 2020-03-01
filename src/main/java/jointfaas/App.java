@@ -1,11 +1,10 @@
-package org.example;
+package jointfaas;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import org.example.serverless.FnControl;
-import org.example.serverless.SocketControl;
+import jointfaas.serverless.FnControl;
+import jointfaas.serverless.SocketControl;
 
 /**
  * Hello world!

@@ -1,4 +1,4 @@
-package org.example;
+package jointfaas;
 
 import static org.junit.Assert.assertTrue;
 
@@ -9,8 +9,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.example.serverless.FnControl;
-import org.example.serverless.Worker;
+
+import jointfaas.serverless.FnControl;
+import jointfaas.serverless.Worker;
 import org.junit.Test;
 
 /**

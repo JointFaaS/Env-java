@@ -1,4 +1,4 @@
-package org.example.serverless;
+package jointfaas.serverless;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +12,7 @@ public class FnControl {
   private Object instance;
 
   public FnControl(String className, String entryPointFn) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    Class fnClass = Class.forName(className);
+    Class fnClass = Class.forName(className, true, ClassLoader.getSystemClassLoader());
     method = fnClass.getDeclaredMethod(entryPointFn, InputStream.class, OutputStream.class);
     constructor = fnClass.getConstructor();
     instance = constructor.newInstance();

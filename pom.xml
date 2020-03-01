@@ -88,7 +88,7 @@
           <configuration>
             <archive>
               <manifest>
-                <mainClass>org.example.App</mainClass>
+                <mainClass>jointfaas.App</mainClass>
               </manifest>
             </archive>
             <descriptorRefs>

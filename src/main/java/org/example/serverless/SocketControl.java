@@ -71,6 +71,8 @@ public class SocketControl implements Runnable {
         System.out.printf("%d time to retry\n", times);
       }
     }
+    System.out.println("socket error");
+    System.exit(1);
   }
 
   private void register(String data) throws IOException {
@@ -121,10 +123,6 @@ public class SocketControl implements Runnable {
       }
       catch (IOException e) {
         retry();
-        if(socket == null || !socket.isConnected()) {
-          System.out.println("can not connect to socket");
-          System.exit(1);
-        }
       }
     }
   }

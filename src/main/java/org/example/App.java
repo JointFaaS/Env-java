@@ -1,17 +1,11 @@
 package org.example;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import org.example.serverless.JarControl;
-import org.example.serverless.SocketControl;
-import org.example.serverless.Worker;
+import org.example.rpc.ContainerServer;
 
 /**
  * Hello world!
@@ -20,9 +14,17 @@ import org.example.serverless.Worker;
 public class App 
 {
     public static void main( String[] args )
-        throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Map<String, String> map = System.getenv();
-        SocketControl socketControl = new SocketControl("/var/run/worker.sock", map.get("funcName"), map.get("envID"), true);
-        socketControl.run();
+        throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, InterruptedException {
+        System.setProperty("RUN_TIME", System.getenv("RUN_TIME"));
+        System.setProperty("FUNC_NAME", System.getenv("FUNC_NAME"));
+        System.setProperty("WORK_HOST", System.getenv("WORK_HOST"));
+        final ContainerServer server = new ContainerServer();
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(System.getProperty("WORK_HOST"))
+            // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
+            // needing certificates.
+            .usePlaintext()
+            .build();
+        server.start(channel);
+        server.blockUntilShutdown();
     }
 }

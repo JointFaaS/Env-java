@@ -44,19 +44,6 @@ public class JarControl {
         System.out.println("Failed to initialize the classloader");
         return;
       }
-//      while (e.hasMoreElements()) {
-//        JarEntry je = e.nextElement();
-//        if (je.isDirectory() || !je.getName().endsWith(".class")) {
-//          continue;
-//        }
-//        String className = je.getName().substring(0, je.getName().length() - CLASS_LENGTH);
-//        className = className.replace('/', '.');
-//        if (className.startsWith("."))
-//        {
-//          className = className.substring(1);
-//        }
-//        cl.loadClass(className);
-//      }
 
 
       Class<?> claz = cl.loadClass(entryPoint);
@@ -70,5 +57,9 @@ public class JarControl {
   public void invoke(Object... args)
       throws IllegalAccessException, InvocationTargetException, InstantiationException {
     method.invoke(constructor.newInstance(), args);
+  }
+
+  public Boolean isReady() {
+    return constructor != null;
   }
 }

@@ -91,7 +91,7 @@ public class AppTest {
     channel = grpcCleanup.register(
         InProcessChannelBuilder.forName(serverName).directExecutor().build());
 
-    System.setProperty("RUN_TIME", "java8");
+    System.setProperty("RUNTIME", "java8");
     System.setProperty("FUNC_NAME", "");
     System.setProperty("WORK_HOST", "");
     System.setProperty("HOST", "127.0.0.1");

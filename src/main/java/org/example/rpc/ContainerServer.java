@@ -79,7 +79,7 @@ public class ContainerServer {
       if (host.equals("")) {
         return;
       }
-      String runTime = System.getProperty("RUN_TIME");
+      String runTime = System.getProperty("RUNTIME");
       String funcName = System.getProperty("FUNC_NAME");
       Long memory = 0L;
       Long disk = 0L;

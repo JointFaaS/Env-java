@@ -15,9 +15,14 @@ public class App
 {
     public static void main( String[] args )
         throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, InterruptedException {
-        System.setProperty("RUN_TIME", System.getenv("RUN_TIME"));
-        System.setProperty("FUNC_NAME", System.getenv("FUNC_NAME"));
-        System.setProperty("WORK_HOST", System.getenv("WORK_HOST"));
+        String[] init_envs = {"RUNTIME", "FUNC_NAME", "WORK_HOST"};
+        for (String env:init_envs) {
+            try {
+                System.setProperty(env, System.getenv(env));
+            } catch (NullPointerException e) {
+                System.setProperty(env, "");
+            }
+        }
         final ContainerServer server = new ContainerServer();
         ManagedChannel channel = ManagedChannelBuilder.forTarget(System.getProperty("WORK_HOST"))
             // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid

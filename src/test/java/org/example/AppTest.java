@@ -19,22 +19,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import org.example.rpc.ContainerImpl;
-import org.example.rpc.ContainerServer;
-import org.example.rpc.WorkClient;
-import org.example.rpc.container.ContainerGrpc;
-import org.example.rpc.container.ContainerGrpc.ContainerBlockingStub;
-import org.example.rpc.container.InvokeResponse;
-import org.example.rpc.container.LoadCodeRequest;
-import org.example.rpc.container.LoadCodeResponse;
-import org.example.rpc.container.InvokeRequest;
-import org.example.rpc.container.SetEnvsRequest;
-import org.example.rpc.container.SetEnvsResponse;
-import org.example.rpc.work.RegisterRequest;
-import org.example.rpc.work.RegisterResponse;
-import org.example.rpc.work.RegisterResponse.Code;
-import org.example.rpc.work.RegisterResponseOrBuilder;
-import org.example.rpc.work.WorkerGrpc;
+import jointfaas.containerImpl;
+import jointfaas.containerServer;
+import jointfaas.workerClient;
+import jointfaas.container.ContainerGrpc;
+import jointfaas.container.ContainerGrpc.ContainerBlockingStub;
+import jointfaas.container.InvokeResponse;
+import jointfaas.container.LoadCodeRequest;
+import jointfaas.container.LoadCodeResponse;
+import jointfaas.container.InvokeRequest;
+import jointfaas.container.SetEnvsRequest;
+import jointfaas.container.SetEnvsResponse;
+import jointfaas.worker.RegisterRequest;
+import jointfaas.worker.RegisterResponse;
+import jointfaas.worker.RegisterResponse.Code;
+import jointfaas.worker.RegisterResponseOrBuilder;
+import jointfaas.worker.WorkerGrpc;
 import org.example.serverless.JarControl;
 import org.junit.After;
 import org.junit.Assert;
@@ -150,7 +150,7 @@ public class AppTest {
         .setUrl("http://106.15.225.249:80/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
-    Assert.assertEquals(LoadCodeResponse.Code.ERR, loadCodeResponse.getCode());
+    Assert.assertEquals(LoadCodeResponse.Code.ERROR, loadCodeResponse.getCode());
   }
 
 
@@ -163,7 +163,7 @@ public class AppTest {
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());
     loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
-    Assert.assertEquals(LoadCodeResponse.Code.ERR, loadCodeResponse.getCode());
+    Assert.assertEquals(LoadCodeResponse.Code.ERROR, loadCodeResponse.getCode());
   }
 
   @Test

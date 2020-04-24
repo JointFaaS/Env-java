@@ -15,14 +15,14 @@ import java.net.URLConnection;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.example.rpc.container.ContainerGrpc.ContainerImplBase;
-import org.example.rpc.container.InvokeRequest;
-import org.example.rpc.container.InvokeResponse;
-import org.example.rpc.container.LoadCodeRequest;
-import org.example.rpc.container.LoadCodeResponse;
-import org.example.rpc.container.LoadCodeResponse.Code;
-import org.example.rpc.container.SetEnvsRequest;
-import org.example.rpc.container.SetEnvsResponse;
+import jointfaas.container.ContainerGrpc.ContainerImplBase;
+import jointfaas.container.InvokeRequest;
+import jointfaas.container.InvokeResponse;
+import jointfaas.container.LoadCodeRequest;
+import jointfaas.container.LoadCodeResponse;
+import jointfaas.container.LoadCodeResponse.Code;
+import jointfaas.container.SetEnvsRequest;
+import jointfaas.container.SetEnvsResponse;
 import org.example.serverless.JarControl;
 
 public class ContainerImpl extends ContainerImplBase {
@@ -108,7 +108,7 @@ public class ContainerImpl extends ContainerImplBase {
     String funcName = req.getFuncName();
     loadLock.lock();
     if (!System.getProperty("FUNC_NAME").equals("")) {
-      LoadCodeResponse response = LoadCodeResponse.newBuilder().setCode(Code.ERR).build();
+      LoadCodeResponse response = LoadCodeResponse.newBuilder().setCode(Code.ERROR).build();
       responseStreamObserver.onNext(response);
       responseStreamObserver.onCompleted();
       loadLock.unlock();
@@ -124,7 +124,7 @@ public class ContainerImpl extends ContainerImplBase {
     } catch (MalformedURLException e) {
       logger.log(Level.WARNING, e.getMessage());
       LoadCodeResponse response = LoadCodeResponse.newBuilder()
-          .setCode(LoadCodeResponse.Code.ERR)
+          .setCode(LoadCodeResponse.Code.ERROR)
           .build();
       responseStreamObserver.onNext(response);
       responseStreamObserver.onCompleted();
@@ -145,7 +145,7 @@ public class ContainerImpl extends ContainerImplBase {
     } catch (IOException e) {
       logger.log(Level.WARNING, e.getMessage());
       LoadCodeResponse response = LoadCodeResponse.newBuilder()
-          .setCode(LoadCodeResponse.Code.ERR).build();
+          .setCode(LoadCodeResponse.Code.ERROR).build();
       responseStreamObserver.onNext(response);
       responseStreamObserver.onCompleted();
       File file = new File(jarPath);
@@ -161,7 +161,7 @@ public class ContainerImpl extends ContainerImplBase {
     if (!jarControl.isReady()) {
       logger.log(Level.WARNING, "jarControl init error");
       LoadCodeResponse response = LoadCodeResponse.newBuilder()
-          .setCode(LoadCodeResponse.Code.ERR).build();
+          .setCode(LoadCodeResponse.Code.ERROR).build();
       responseStreamObserver.onNext(response);
       responseStreamObserver.onCompleted();
       loadLock.unlock();

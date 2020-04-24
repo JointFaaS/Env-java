@@ -6,10 +6,10 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.example.rpc.work.RegisterRequest;
-import org.example.rpc.work.RegisterResponse;
-import org.example.rpc.work.RegisterResponse.Code;
-import org.example.rpc.work.WorkerGrpc;
+import jointfaas.worker.RegisterRequest;
+import jointfaas.worker.RegisterResponse;
+import jointfaas.worker.RegisterResponse.Code;
+import jointfaas.worker.WorkerGrpc;
 
 public class WorkClient {
   private static final Logger logger = Logger.getLogger(WorkClient.class.getName());

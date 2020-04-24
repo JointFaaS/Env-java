@@ -64,11 +64,32 @@ public class ContainerServer {
     } catch (IOException e) {
       logger.log(Level.WARNING, e.getMessage());
     }
-    return last.split(" ")[0] + ":" + port.toString();
+    return last.split("\t")[0] + ":" + port.toString();
   }
 
 
   public void start(ManagedChannel channel) throws IOException, InterruptedException {
+
+    /* The port on which the server should run */
+    server = ServerBuilder.forPort(port)
+        .addService(new ContainerImpl())
+        .build()
+        .start();
+    logger.info("Server started, listening on " + port);
+
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
+      public void run() {
+        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+        System.err.println("*** shutting down gRPC server since JVM is shutting down");
+        try {
+          ContainerServer.this.stop();
+        } catch (InterruptedException e) {
+          e.printStackTrace(System.err);
+        }
+        System.err.println("*** server shut down");
+      }
+    });
 
     // Create a communication channel to the server, known as a Channel. Channels are thread-safe
     // and reusable. It is common to create channels at the beginning of your application and reuse
@@ -91,28 +112,6 @@ public class ContainerServer {
       // again leave it running.
       channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
     }
-
-
-    /* The port on which the server should run */
-    server = ServerBuilder.forPort(port)
-        .addService(new ContainerImpl())
-        .build()
-        .start();
-    logger.info("Server started, listening on " + port);
-
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-        System.err.println("*** shutting down gRPC server since JVM is shutting down");
-        try {
-          ContainerServer.this.stop();
-        } catch (InterruptedException e) {
-          e.printStackTrace(System.err);
-        }
-        System.err.println("*** server shut down");
-      }
-    });
   }
 
   public void stop() throws InterruptedException {

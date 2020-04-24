@@ -81,7 +81,7 @@ public class ContainerServer {
       }
       String runTime = System.getProperty("RUNTIME");
       String funcName = System.getProperty("FUNC_NAME");
-      Long memory = 0L;
+      Long memory = Long.parseLong(System.getProperty("MEMORY"));
       Long disk = 0L;
       client.Register(host, runTime, funcName, memory, disk);
 

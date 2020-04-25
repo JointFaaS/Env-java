@@ -64,7 +64,7 @@ public class ContainerServer {
     } catch (IOException e) {
       logger.log(Level.WARNING, e.getMessage());
     }
-    return last.split("\t")[0] + ":" + port.toString();
+    return last.split("\\s")[0] + ":" + port.toString();
   }
 
 

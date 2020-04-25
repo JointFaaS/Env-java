@@ -15,7 +15,7 @@ public class App
 {
     public static void main( String[] args )
         throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, InterruptedException {
-        String[] init_envs = {"RUNTIME", "FUNC_NAME", "WORK_HOST", "MEMORY"};
+        String[] init_envs = {"RUNTIME", "FUNC_NAME", "WORK_HOST", "MEMORY", "JAR_PATH"};
         for (String env:init_envs) {
             try {
                 System.setProperty(env, System.getenv(env));

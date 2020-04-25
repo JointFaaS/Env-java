@@ -107,13 +107,8 @@ public class ContainerImpl extends ContainerImplBase {
   public void loadCode(LoadCodeRequest req, StreamObserver<LoadCodeResponse> responseStreamObserver) {
     String funcName = req.getFuncName();
     loadLock.lock();
-    if (!System.getProperty("FUNC_NAME").equals("")) {
-      LoadCodeResponse response = LoadCodeResponse.newBuilder().setCode(Code.ERROR).build();
-      responseStreamObserver.onNext(response);
-      responseStreamObserver.onCompleted();
-      loadLock.unlock();
-      logger.log(Level.WARNING, "FUNC_NAME not equls to \"\"");
-      return;
+    if (!System.getProperty("FUNC_NAME").equals(funcName)) {
+      logger.log(Level.WARNING, "FUNC_NAME is not equal to loadCode funcName, which means a reload");
     }
     System.setProperty("FUNC_NAME", funcName);
     int byteSum = 0;

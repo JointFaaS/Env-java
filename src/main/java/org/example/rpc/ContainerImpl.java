@@ -160,6 +160,7 @@ public class ContainerImpl extends ContainerImplBase {
       responseStreamObserver.onNext(response);
       responseStreamObserver.onCompleted();
       loadLock.unlock();
+      return;
     }
 
     // response

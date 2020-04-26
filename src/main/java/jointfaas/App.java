@@ -1,10 +1,11 @@
 package jointfaas;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-
-import jointfaas.serverless.FnControl;
-import jointfaas.serverless.SocketControl;
+import jointfaas.rpc.ContainerServer;
 
 /**
  * Hello world!
@@ -12,25 +13,23 @@ import jointfaas.serverless.SocketControl;
  */
 public class App 
 {
-
-    static final private String ENTRY_POINT_CLASS = "jointfaas.Index";
-    static final private String ENTRY_POINT_METHOD = "handle";
-
     public static void main( String[] args )
-            throws IOException {
-        Map<String, String> map = System.getenv();
-        SocketControl socketControl = new SocketControl("/var/run/worker.sock", map.get("funcName"), map.get("envID"), true);
-        try {
-            FnControl fnControl = new FnControl(ENTRY_POINT_CLASS, ENTRY_POINT_METHOD);
-            socketControl.setFnControl(fnControl);
-        }catch (Exception e){
-            e.printStackTrace();
-            return;
-            // TODO
-            // if fnControl fails, send a fail signal to socket.
-            // now, we will close the socket, it's a simple signal to inform Worker of fn failure
+        throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, InterruptedException {
+        String[] init_envs = {"RUNTIME", "FUNC_NAME", "WORK_HOST", "MEMORY", "JAR_PATH"};
+        for (String env:init_envs) {
+            try {
+                System.setProperty(env, System.getenv(env));
+            } catch (NullPointerException e) {
+                System.setProperty(env, "");
+            }
         }
-
-        socketControl.run();
+        final ContainerServer server = new ContainerServer();
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(System.getProperty("WORK_HOST"))
+            // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
+            // needing certificates.
+            .usePlaintext()
+            .build();
+        server.start(channel);
+        server.blockUntilShutdown();
     }
 }

@@ -1,4 +1,4 @@
-package org.example.rpc;
+package jointfaas.rpc;
 
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;

@@ -1,4 +1,4 @@
-package org.example.rpc;
+package jointfaas.rpc;
 
 import com.google.protobuf.ByteString;
 import io.grpc.Channel;

@@ -1,4 +1,4 @@
-package org.example;
+package jointfaas;
 
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 import static org.junit.Assert.assertTrue;
@@ -35,7 +35,7 @@ import jointfaas.worker.RegisterResponse;
 import jointfaas.worker.RegisterResponse.Code;
 import jointfaas.worker.RegisterResponseOrBuilder;
 import jointfaas.worker.WorkerGrpc;
-import org.example.serverless.JarControl;
+import jointfaas.serverless.JarControl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package org.example.serverless;
+package jointfaas.serverless;
 
 import java.io.File;
 import java.io.IOException;

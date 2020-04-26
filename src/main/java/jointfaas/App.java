@@ -1,11 +1,11 @@
-package org.example;
+package jointfaas;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import org.example.rpc.ContainerServer;
+import jointfaas.rpc.ContainerServer;
 
 /**
  * Hello world!

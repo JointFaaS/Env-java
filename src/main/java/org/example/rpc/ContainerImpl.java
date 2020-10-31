@@ -105,6 +105,13 @@ public class ContainerImpl extends ContainerImplBase {
 
   @Override
   public void loadCode(LoadCodeRequest req, StreamObserver<LoadCodeResponse> responseStreamObserver) {
+    if (jarControl != null && jarControl.isReady()) {
+      LoadCodeResponse response = LoadCodeResponse.newBuilder()
+          .setCode(LoadCodeResponse.Code.ERROR)
+          .build();
+      responseStreamObserver.onNext(response);
+      responseStreamObserver.onCompleted();
+    }
     String funcName = req.getFuncName();
     loadLock.lock();
     if (!System.getProperty("FUNC_NAME").equals(funcName)) {

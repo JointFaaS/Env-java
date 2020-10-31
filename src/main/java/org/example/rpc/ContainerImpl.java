@@ -20,7 +20,6 @@ import jointfaas.container.InvokeRequest;
 import jointfaas.container.InvokeResponse;
 import jointfaas.container.LoadCodeRequest;
 import jointfaas.container.LoadCodeResponse;
-import jointfaas.container.LoadCodeResponse.Code;
 import jointfaas.container.SetEnvsRequest;
 import jointfaas.container.SetEnvsResponse;
 import org.example.serverless.JarControl;

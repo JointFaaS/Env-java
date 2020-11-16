@@ -121,9 +121,10 @@ public class AppTest {
 
   @Test
   public void InvokeTest() throws InterruptedException {
+
     LoadCodeRequest loadCodeRequest = LoadCodeRequest.newBuilder()
         .setFuncName("hello")
-        .setUrl("http://106.15.225.249:8081/index.jar")
+        .setUrl("http://106.15.225.249:8080/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());
@@ -151,7 +152,7 @@ public class AppTest {
   public void LoadTwiceTest() throws InterruptedException {
     LoadCodeRequest loadCodeRequest = LoadCodeRequest.newBuilder()
         .setFuncName("hello")
-        .setUrl("http://106.15.225.249:8081/index.jar")
+        .setUrl("http://106.15.225.249:8080/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());
@@ -163,7 +164,7 @@ public class AppTest {
   public void InvokeWithErrorName() throws InterruptedException {
     LoadCodeRequest loadCodeRequest = LoadCodeRequest.newBuilder()
         .setFuncName("olleh")
-        .setUrl("http://106.15.225.249:8081/index.jar")
+        .setUrl("http://106.15.225.249:8080/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());

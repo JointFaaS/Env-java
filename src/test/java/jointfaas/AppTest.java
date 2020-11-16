@@ -1,7 +1,5 @@
-package org.example;
+package jointfaas;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
 
@@ -23,11 +21,11 @@ import jointfaas.container.LoadCodeResponse;
 import jointfaas.container.InvokeRequest;
 import jointfaas.container.SetEnvsRequest;
 import jointfaas.container.SetEnvsResponse;
+import jointfaas.rpc.ContainerServer;
 import jointfaas.worker.RegisterRequest;
 import jointfaas.worker.RegisterResponse;
 import jointfaas.worker.RegisterResponse.Code;
 import jointfaas.worker.WorkerGrpc;
-import org.example.rpc.ContainerServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

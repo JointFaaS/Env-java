@@ -1,4 +1,4 @@
-package org.example.rpc;
+package jointfaas.rpc;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
@@ -22,7 +22,7 @@ import jointfaas.container.LoadCodeRequest;
 import jointfaas.container.LoadCodeResponse;
 import jointfaas.container.SetEnvsRequest;
 import jointfaas.container.SetEnvsResponse;
-import org.example.serverless.JarControl;
+import jointfaas.serverless.JarControl;
 
 public class ContainerImpl extends ContainerImplBase {
   private static final Logger logger = Logger.getLogger(ContainerImpl.class.getName());

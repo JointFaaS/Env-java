@@ -1,8 +1,6 @@
-package org.example.rpc;
+package jointfaas.rpc;
 
 import io.grpc.Channel;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

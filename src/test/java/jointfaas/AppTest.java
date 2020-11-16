@@ -1,7 +1,5 @@
 package jointfaas;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
 
@@ -12,16 +10,9 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import jointfaas.containerImpl;
-import jointfaas.containerServer;
-import jointfaas.workerClient;
 import jointfaas.container.ContainerGrpc;
 import jointfaas.container.ContainerGrpc.ContainerBlockingStub;
 import jointfaas.container.InvokeResponse;
@@ -30,12 +21,11 @@ import jointfaas.container.LoadCodeResponse;
 import jointfaas.container.InvokeRequest;
 import jointfaas.container.SetEnvsRequest;
 import jointfaas.container.SetEnvsResponse;
+import jointfaas.rpc.ContainerServer;
 import jointfaas.worker.RegisterRequest;
 import jointfaas.worker.RegisterResponse;
 import jointfaas.worker.RegisterResponse.Code;
-import jointfaas.worker.RegisterResponseOrBuilder;
 import jointfaas.worker.WorkerGrpc;
-import jointfaas.serverless.JarControl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -96,6 +86,7 @@ public class AppTest {
     System.setProperty("WORK_HOST", "");
     System.setProperty("HOST", "127.0.0.1");
     System.setProperty("JAR_PATH", "D:/jfl/Env-java/index.jar");
+    System.setProperty("MEMORY", "100");
     // start server
     ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
     server = new ContainerServer();
@@ -128,9 +119,10 @@ public class AppTest {
 
   @Test
   public void InvokeTest() throws InterruptedException {
+
     LoadCodeRequest loadCodeRequest = LoadCodeRequest.newBuilder()
         .setFuncName("hello")
-        .setUrl("http://106.15.225.249:8081/index.jar")
+        .setUrl("http://106.15.225.249:8080/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());
@@ -158,7 +150,7 @@ public class AppTest {
   public void LoadTwiceTest() throws InterruptedException {
     LoadCodeRequest loadCodeRequest = LoadCodeRequest.newBuilder()
         .setFuncName("hello")
-        .setUrl("http://106.15.225.249:8081/index.jar")
+        .setUrl("http://106.15.225.249:8080/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());
@@ -170,7 +162,7 @@ public class AppTest {
   public void InvokeWithErrorName() throws InterruptedException {
     LoadCodeRequest loadCodeRequest = LoadCodeRequest.newBuilder()
         .setFuncName("olleh")
-        .setUrl("http://106.15.225.249:8081/index.jar")
+        .setUrl("http://106.15.225.249:8080/index.jar")
         .build();
     LoadCodeResponse loadCodeResponse = blockingStub.loadCode(loadCodeRequest);
     Assert.assertEquals(LoadCodeResponse.Code.OK, loadCodeResponse.getCode());

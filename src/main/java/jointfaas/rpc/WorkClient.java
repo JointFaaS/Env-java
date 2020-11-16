@@ -1,8 +1,6 @@
 package jointfaas.rpc;
 
 import io.grpc.Channel;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,11 +10,14 @@ import jointfaas.worker.RegisterResponse.Code;
 import jointfaas.worker.WorkerGrpc;
 
 public class WorkClient {
+
   private static final Logger logger = Logger.getLogger(WorkClient.class.getName());
 
   private final WorkerGrpc.WorkerBlockingStub blockingStub;
 
-  /** Construct client for accessing HelloWorld server using the existing channel. */
+  /**
+   * Construct client for accessing HelloWorld server using the existing channel.
+   */
   public WorkClient(Channel channel) {
     // 'channel' here is a Channel, not a ManagedChannel, so it is not this code's responsibility to
     // shut it down.
@@ -26,9 +27,12 @@ public class WorkClient {
   }
 
 
-  public void Register(String addr, String runtime, String funcName, Long memory, Long disk) {
+  public void Register(String id, String addr, String runtime, String funcName, Long memory,
+      Long disk) {
     // read from /etc/hosts
-    RegisterRequest request = RegisterRequest.newBuilder().setAddr(addr)
+    RegisterRequest request = RegisterRequest.newBuilder()
+        .setId(id)
+        .setAddr(addr)
         .setRuntime(runtime)
         .setFuncName(funcName)
         .setMemory(memory)

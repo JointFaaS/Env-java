@@ -4,7 +4,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import jointfaas.rpc.ContainerServer;
 
 /**

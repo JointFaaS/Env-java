@@ -1,32 +1,19 @@
 package jointfaas.rpc;
 
-import com.google.protobuf.ByteString;
-import io.grpc.Channel;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class ContainerServer {
+
   private static final Logger logger = Logger.getLogger(ContainerServer.class.getName());
 
   private Server server;
@@ -49,8 +36,9 @@ public class ContainerServer {
     // the last line can get ip in the source
     while (true) {
       try {
-        if ((str = bf.readLine()) == null)
+        if ((str = bf.readLine()) == null) {
           break;
+        }
       } catch (IOException e) {
         logger.log(Level.WARNING, e.getMessage());
         return "";
@@ -64,7 +52,44 @@ public class ContainerServer {
     } catch (IOException e) {
       logger.log(Level.WARNING, e.getMessage());
     }
+
     return last.split("\\s")[0] + ":" + port.toString();
+  }
+
+  private String readId() {
+    FileReader fr = null;
+    try {
+      fr = new FileReader("/etc/hosts");
+    } catch (FileNotFoundException e) {
+      logger.log(Level.WARNING, e.getMessage());
+      // read from
+      return System.getProperty("HOST") + ":" + port.toString();
+    }
+
+    BufferedReader bf = new BufferedReader(fr);
+    String str;
+    String last = "";
+    // the last line can get ip in the source
+    while (true) {
+      try {
+        if ((str = bf.readLine()) == null) {
+          break;
+        }
+      } catch (IOException e) {
+        logger.log(Level.WARNING, e.getMessage());
+        return "";
+      }
+      last = str;
+    }
+
+    try {
+      bf.close();
+      fr.close();
+    } catch (IOException e) {
+      logger.log(Level.WARNING, e.getMessage());
+    }
+
+    return last.split("\\s")[1];
   }
 
 
@@ -100,11 +125,14 @@ public class ContainerServer {
       if (host.equals("")) {
         return;
       }
+      String id = readId();
+      System.out.println(host);
+      System.out.println(id);
       String runTime = System.getProperty("RUNTIME");
       String funcName = System.getProperty("FUNC_NAME");
       Long memory = Long.parseLong(System.getProperty("MEMORY"));
       Long disk = 0L;
-      client.Register(host, runTime, funcName, memory, disk);
+      client.Register(id, host, runTime, funcName, memory, disk);
 
     } finally {
       // ManagedChannels use resources like threads and TCP connections. To prevent leaking these

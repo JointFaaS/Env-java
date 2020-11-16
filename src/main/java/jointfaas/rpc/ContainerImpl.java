@@ -20,7 +20,6 @@ import jointfaas.container.InvokeRequest;
 import jointfaas.container.InvokeResponse;
 import jointfaas.container.LoadCodeRequest;
 import jointfaas.container.LoadCodeResponse;
-import jointfaas.container.LoadCodeResponse.Code;
 import jointfaas.container.SetEnvsRequest;
 import jointfaas.container.SetEnvsResponse;
 import jointfaas.serverless.JarControl;
@@ -105,6 +104,13 @@ public class ContainerImpl extends ContainerImplBase {
 
   @Override
   public void loadCode(LoadCodeRequest req, StreamObserver<LoadCodeResponse> responseStreamObserver) {
+    if (jarControl != null && jarControl.isReady()) {
+      LoadCodeResponse response = LoadCodeResponse.newBuilder()
+          .setCode(LoadCodeResponse.Code.ERROR)
+          .build();
+      responseStreamObserver.onNext(response);
+      responseStreamObserver.onCompleted();
+    }
     String funcName = req.getFuncName();
     loadLock.lock();
     if (!System.getProperty("FUNC_NAME").equals(funcName)) {
